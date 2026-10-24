@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>NEON HIGHWAY</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="vignette"></div>
+<div id="flash"></div>
+
+<header id="hud" class="hidden">
+  <div class="logo">NEON <b>HIGHWAY</b></div>
+  <div class="stats">
+    <div><span id="speed">0</span><small>KM/H</small></div>
+    <div><span id="coins">0</span><small>PIÈCES</small></div>
+    <div><span id="dist">0</span><small>MÈTRES</small></div>
+    <div><span id="best">0</span><small>RECORD</small></div>
+  </div>
+</header>
+
+<div id="toast"></div>
+
+<div id="boostBar" class="hidden"><label>BOOST</label><div class="track"><i id="boostFill"></i></div></div>
+
+<div id="touch" class="hidden">
+  <button data-act="left" aria-label="Gauche">◀</button>
+  <button data-act="jump" aria-label="Saut">SAUT</button>
+  <button data-act="boost" aria-label="Boost">BOOST</button>
+  <button data-act="right" aria-label="Droite">▶</button>
+</div>
+
+<main id="menu" class="panel-wrap">
+  <section class="panel">
+    <p class="kicker">AUTONOMOUS RACING / 2049</p>
+    <h1>NEON<span>HIGHWAY</span></h1>
+    <p class="lead">Évite le trafic. Attrape les boosts. Va le plus loin possible.</p>
+    <button id="startBtn" class="btn">DÉMARRER ↗</button>
+    <p class="help"><b>← →</b> / <b>A D</b> changer de voie · <b>↑</b> / <b>W</b> saut · <b>ESPACE</b> boost<br>Pièces ◉ à ramasser, barrières orange à sauter<br>Mobile : boutons tactiles en bas de l'écran</p>
+  </section>
+</main>
+
+<main id="over" class="panel-wrap hidden">
+  <section class="panel">
+    <p class="kicker">TRAJET INTERROMPU</p>
+    <h1 class="red">IMPACT</h1>
+    <p class="score" id="finalDist">0 m</p>
+    <p id="newRec" class="new hidden">NOUVEAU RECORD !</p>
+    <button id="retryBtn" class="btn">REPRENDRE ↻</button>
+  </section>
+</main>
+
+<script src="game.js"></script>
+</body>
+</html>
