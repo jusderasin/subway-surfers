@@ -179,7 +179,7 @@ const THEMES = {
   city: {
     top: 0x02030c, hor: 0x4a1a6a, bot: 0x07030f, fog: 0x2a1046, fogNear: 30, fogFar: 210,
     hemi: [0x6677ff, 0x1a0022, .55], sun: [0xc0a8ff, .85], sunPos: [-14, 30, 12],
-    bloom: [1.05, .55, .3], ring: 0x2ff3ff,
+    bloom: [.85, .55, .45], ring: 0x2ff3ff,
     env: [[0xff3fd0, -30, 8, -20, 40, 6], [0x2ff3ff, 30, 12, 10, 40, 6], [0xffffff, 0, 60, 0, 30, 30], [0x8866ff, 0, 10, 40, 50, 10]]
   },
   farm: {
@@ -690,11 +690,13 @@ function buildWorld() {
   podRing.color.setHex(T.ring);
   if (bloom) { bloom.enabled = !!T.bloom; if (T.bloom) { bloom.strength = T.bloom[0]; bloom.radius = T.bloom[1]; bloom.threshold = T.bloom[2]; } }
   // environnement pour les reflets
-  const es = new THREE.Scene();
-  es.add(new THREE.Mesh(new THREE.SphereGeometry(100, 32, 16), skyMat));
-  T.env.forEach(([c, x, y, z, w, h]) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: c, side: THREE.DoubleSide })); m.position.set(x, y, z); m.lookAt(0, 0, 0); es.add(m); });
+  const [ec, ex] = canvas(512, 256), hx = n => '#' + n.toString(16).padStart(6, '0');
+  const eg = ex.createLinearGradient(0, 0, 0, 256); eg.addColorStop(0, hx(T.top)); eg.addColorStop(.5, hx(T.hor)); eg.addColorStop(1, hx(T.bot));
+  ex.fillStyle = eg; ex.fillRect(0, 0, 512, 256);
+  T.env.forEach(([c, x, y, z, w, h], i) => { ex.fillStyle = hx(c); ex.globalAlpha = .9; ex.fillRect((i * 137 + 40) % 460, 128 - y * 1.6 - h, w * 2.2, h * 1.4); });
+  const et = new THREE.CanvasTexture(ec); et.mapping = THREE.EquirectangularReflectionMapping;
   if (scene.environment) scene.environment.dispose();
-  scene.environment = pmrem.fromScene(es, .02).texture;
+  scene.environment = pmrem.fromEquirectangular(et).texture; et.dispose();
   for (let i = 0; i < NSEG; i++) { const s = world === 'city' ? citySegment() : farmSegment(); s.position.z = SEG - i * SEG; worldGroup.add(s); segs.push(s); }
 }
 
@@ -788,7 +790,7 @@ function refreshMenu(rebuild = true) {
   if (rebuild) setPlayer(s);
 }
 function enterMenu() {
-  G.state = 'menu'; musicStop(); clearRun(); resetPlayer();
+  G.state = 'menu'; musicStop(); clearRun(); resetPlayer(); G.pw = { magnet: 0, fly: 0, x2: 0 }; G.inv = 0;
   previewIdx[world] = Math.max(0, SKINS[world].findIndex(s => s.id === save.chosen[world]));
   podium.visible = true;
   ['hud', 'over', 'pause', 'count'].forEach(i => $(i).classList.add('hidden'));
@@ -1016,7 +1018,7 @@ function updateCamera(dt) {
     const a = G.t * .12;
     pos = tmpV.set(Math.sin(a) * 1.6 + 3.2, 2.1, 5.4 + Math.cos(a) * .6); look = tmpV2.set(0, 1, 0); fov = 50;
   } else {
-    pos = tmpV.set(P.x * .55, 4.3 + P.y * .55, 8.4); look = tmpV2.set(P.x * .7, 1.3 + P.y * .65, -10);
+    pos = tmpV.set(P.x * .55, 4.3 + P.y * .9, 8.4); look = tmpV2.set(P.x * .7, 1.3 + P.y * .85, -10);
     fov = 62 + (G.speed - 20) * .35 + (G.pw.fly > 0 ? 8 : 0);
   }
   const k = damp(G.state === 'menu' ? 2 : 5, dt);
